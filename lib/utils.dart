@@ -31,6 +31,16 @@ var logger = Logger(
   ),
 );
 
+final comNotifiDetails = NotificationDetails(
+  android: AndroidNotificationDetails(
+    "弹窗id",
+    "测试弹窗",
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: false,
+  ),
+);
+
 String generateMd5(String input) {
   var bytes = utf8.encode(input); // 将字符串编码为 UTF-8 字节
   var digest = md5.convert(bytes); // 计算 MD5 哈希

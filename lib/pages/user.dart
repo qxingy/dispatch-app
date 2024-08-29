@@ -1,4 +1,5 @@
 import 'package:dispatch/repo.dart';
+import 'package:dispatch/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -7,8 +8,7 @@ class UserPageCtr extends GetxController {
   final _localRepo = Get.find<LocalRepo>();
 
   final isTest = false.obs;
-  final _flutterLocalNotificationsPlugin =
-      Get.find<FlutterLocalNotificationsPlugin>();
+  final notifyPlugin = Get.find<FlutterLocalNotificationsPlugin>();
 
   void logout(BuildContext context) async {
     await _localRepo.removeToken();
@@ -42,20 +42,7 @@ class UserPage extends StatelessWidget {
               backgroundColor: MaterialStateProperty.all(Colors.red),
             ),
             onPressed: () async {
-              c._flutterLocalNotificationsPlugin.show(
-                0,
-                "测试",
-                "这是一个测试弹窗",
-                NotificationDetails(
-                  android: AndroidNotificationDetails(
-                    "弹窗id",
-                    "测试弹窗",
-                    importance: Importance.max,
-                    priority: Priority.high,
-                    showWhen: false,
-                  ),
-                ),
-              );
+              c.notifyPlugin.show(0, "测试", "这是一个测试弹窗", comNotifiDetails);
             },
             child: Text("测试弹窗"),
           ),

@@ -100,6 +100,15 @@ class ApiProvider extends GetConnect {
     await post("/business/addNode",
         jsonEncode({"node": jsonEncode(data)}));
   }
+
+  Future<List<String>> getUserIpList() async {
+    final result = await get("/business/getUserIpList");
+    return [];
+  }
+
+  Future<GetSocket> connect() async {
+    return socket("/business/ws");
+  }
 }
 
 class LocalRepo {

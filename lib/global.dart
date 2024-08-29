@@ -22,14 +22,16 @@ class GlobalService extends GetxService {
 
   Timer? timer;
 
+  GetSocket? socket;
+  int? onTickAppUid;
+
   final isRoot = false.obs;
 
   final appDao = Get.find<AppDao>();
   final localRepo = Get.find<LocalRepo>();
   final appManager = Get.find<AppManager>();
   final appService = Get.find<ApiProvider>();
-  final _flutterLocalNotificationsPlugin =
-      Get.find<FlutterLocalNotificationsPlugin>();
+  final notifyPlugin = Get.find<FlutterLocalNotificationsPlugin>();
 
   StreamSubscription<AccessibilityEvent>? subHandler;
 
@@ -95,8 +97,7 @@ class GlobalService extends GetxService {
         return;
       }
       await appService.addNode(tmpData!.toJson());
-      _flutterLocalNotificationsPlugin.show(0, "提示", "开始上报",
-          NotificationDetails(android: AndroidNotificationDetails("弹窗id", "")));
+      notifyPlugin.show(0, "提示", "开始上报", comNotifiDetails);
       reportData.add(tmpData!);
 
       logger.d("开始上报");
@@ -124,6 +125,19 @@ class GlobalService extends GetxService {
 
     final apps = await appDao.findAllEnable();
 
+    socket = await appService.connect();
+    socket?.onMessage((data) async {
+      switch (data) {
+        case "jiedan":
+          {
+            await closeAllAppNetwork(
+                apps.where((app) => app.uid != onTickAppUid).toList());
+            await handlerCloseAssistant();
+            notifyPlugin.show(0, "提示", "接单成功", comNotifiDetails);
+          }
+      }
+    });
+
     subHandler = FlutterAccessibilityService.accessStream.listen((event) async {
       final app =
           apps.firstWhereOrNull((app) => app.packageName == event.packageName);
@@ -137,13 +151,12 @@ class GlobalService extends GetxService {
       }
 
       final match = await appManager.match(jsonData, app.getNode);
-      if (match) {
-        logger.d("app: ${app.name} 触发了节点: ${app.getNode}");
-
-        await closeAllAppNetwork(
-            apps.where((_app) => _app.uid != app.uid).toList());
-        await handlerCloseAssistant();
+      if (!match) {
+        return;
       }
+      logger.d("app: ${app.name} 触发了节点: ${app.getNode}");
+      onTickAppUid = app.uid;
+      socket?.send("jiedan");
     });
 
     logger.d("打开助手");
