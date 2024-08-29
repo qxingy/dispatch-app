@@ -3,6 +3,7 @@ import 'package:dispatch/global.dart';
 import 'package:dispatch/pages/report.dart';
 import 'package:dispatch/pages/assistant.dart';
 import 'package:dispatch/pages/user.dart';
+import 'package:dispatch/repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:get/get.dart';
@@ -31,6 +32,7 @@ class HomePageCtr extends FullLifeCycleController with FullLifeCycleMixin {
 
   final globalCtr = Get.find<GlobalService>();
   final appManager = Get.find<AppManager>();
+  final localRepo = Get.find<LocalRepo>();
 
   final items = routes
       .map(
@@ -40,6 +42,12 @@ class HomePageCtr extends FullLifeCycleController with FullLifeCycleMixin {
       )
       .toList();
   final widgets = routes.map((e) => e["page"] as Widget).toList();
+
+  void logout(BuildContext context) async {
+    await localRepo.removeToken();
+    Get.snackbar("提示", "退出登录成功");
+    Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
+  }
 
   Widget? buildFloatingButton(BuildContext context) {
     switch (_currentIndex.value) {
@@ -79,6 +87,14 @@ class HomePageCtr extends FullLifeCycleController with FullLifeCycleMixin {
             child: Text("停止上报"),
           );
         }
+      case 2:
+        return ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.red),
+          ),
+          onPressed: () => logout(context),
+          child: Text("退出登录"),
+        );
     }
     return null;
   }
@@ -109,12 +125,10 @@ class HomePageCtr extends FullLifeCycleController with FullLifeCycleMixin {
         FlutterOverlayWindow.showOverlay(
           enableDrag: true,
           height: 200,
-          width: 200,
-          startPosition: OverlayPosition(180, 100),
+          width: 250,
+          startPosition: OverlayPosition(100, -300),
         );
         FlutterOverlayWindow.overlayListener.listen((data) {
-          print(data);
-          print("====================");
           appManager.bringToForeground();
         });
       default:

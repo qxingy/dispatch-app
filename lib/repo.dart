@@ -39,17 +39,37 @@ class AppRemoteInfo {
   }
 }
 
+class UserInfo {
+  final String username;
+  final int expirationTime;
+  final int onlineNum;
+  final String phone;
+
+  UserInfo({
+    required this.username,
+    required this.expirationTime,
+    required this.onlineNum,
+    required this.phone,
+  });
+
+  bool isExpire() {
+    return DateTime.now().millisecondsSinceEpoch > expirationTime * 1000;
+  }
+}
+
 class ApiProvider extends GetConnect {
   final repo = Get.find<LocalRepo>();
   final List<String> authWhiteList = [
     "/user/login",
     "/user/sendEmail",
-    "/user/emilLogin"
+    "/user/emailLogin"
+        "/business/ws"
   ];
 
   @override
   void onInit() {
-    httpClient.baseUrl = 'http://49.233.252.12/api';
+    // httpClient.baseUrl = 'http://49.233.252.12/api';
+    httpClient.baseUrl = 'http://192.168.0.65:5586/api';
 
     httpClient.addRequestModifier<dynamic>((req) async {
       if (!authWhiteList.any((url) => req.url.toString().contains(url))) {
@@ -97,17 +117,45 @@ class ApiProvider extends GetConnect {
   }
 
   Future<void> addNode(dynamic data) async {
-    await post("/business/addNode",
-        jsonEncode({"node": jsonEncode(data)}));
+    await post("/business/addNode", jsonEncode({"node": jsonEncode(data)}));
   }
 
-  Future<List<String>> getUserIpList() async {
+  Future<List<dynamic>> getUserIpList() async {
     final result = await get("/business/getUserIpList");
-    return [];
+    return result.body["data"];
   }
 
   Future<GetSocket> connect() async {
-    return socket("/business/ws");
+    final conn = socket(
+        "${httpClient.baseUrl}/business/ws?key=${await repo.getToken()}");
+    conn.onOpen(() {
+      logger.d("websocket open");
+    });
+    conn.onClose((data) {
+      logger.d("websocket close: $data");
+    });
+    conn.onError((data) {
+      logger.d("websocket error: $data");
+    });
+    await conn.connect();
+    return conn;
+  }
+
+  Future<void> cdkActivation(String username, String cdk) async {
+    await post("/business/cdkActivation", {
+      "username": username,
+      "cdk": cdk,
+    });
+  }
+
+  Future<UserInfo> userInfo() async {
+    final result = await get("/user/getUsers");
+    return UserInfo(
+      username: result.body["data"][0]["username"],
+      expirationTime: result.body["data"][0]["expiration_time"],
+      onlineNum: result.body["data"][0]["onlinenum"],
+      phone: result.body["data"][0]["phone"],
+    );
   }
 }
 
@@ -131,4 +179,16 @@ class LocalRepo {
 
   Future<void> setUnInit() async =>
       (await SharedPreferences.getInstance()).setBool("init", false);
+
+  Future<void> setCdKey(String cdKey) async =>
+      (await SharedPreferences.getInstance()).setString("cd_key", cdKey);
+
+  Future<String> getCdKey() async =>
+      (await SharedPreferences.getInstance()).getString("cd_key") ?? "";
+
+  Future<void> setAccount(String account) async =>
+      (await SharedPreferences.getInstance()).setString("account", account);
+
+  Future<String> getAccount() async =>
+      (await SharedPreferences.getInstance()).getString("account") ?? "";
 }

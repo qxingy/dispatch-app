@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dispatch/global.dart';
 import 'package:dispatch/repo.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -7,23 +8,22 @@ import 'package:get/get.dart';
 class LoginPageCtr extends GetxController {
   final apiProvider = Get.find<ApiProvider>();
   final localRepo = Get.find<LocalRepo>();
+  final globalService = Get.find<GlobalService>();
 
   final _formKey = GlobalKey<FormState>();
   final username = "".obs;
   final password = "".obs;
   final code = "".obs;
   final isCodeLogin = false.obs;
-  final isObscure = false.obs;
+  final isObscure = true.obs;
 
   @override
   void onInit() async {
     super.onInit();
+    username.value = await localRepo.getAccount();
   }
 
   void sendEmail() async {
-    final result = await Dio().post("http://49.233.252.12/api/user/sendEmail",
-        data: {"username": "1213383851@qq.com"});
-
     final form = _formKey.currentState;
     if (!form!.validate()) {
       return;
@@ -50,7 +50,10 @@ class LoginPageCtr extends GetxController {
       token = await apiProvider.userLogin(username.value, password.value);
     }
 
+    await localRepo.setAccount(username.value);
     await localRepo.setToken(token);
+    await globalService.syncUserInfo();
+
     Get.snackbar("消息", "登录成功");
     Navigator.pushNamedAndRemoveUntil(context, "/home", (r) => false);
   }
@@ -79,24 +82,25 @@ class LoginPage extends StatelessWidget {
               ),
             ),
 
-
             const SizedBox(height: 50),
             TextFormField(
-                onSaved: (v) {
-                  print("object");
-                  print(v);
-                  c.username.value = v!;
-                },
-                decoration: InputDecoration(
-                  labelText: "用户名",
-                  hintText: "请输入用户名",
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                validator: FormBuilderValidators.compose([
+              initialValue: c.username.value,
+              onSaved: (v) {
+                c.username.value = v!;
+              },
+              decoration: InputDecoration(
+                labelText: "用户名",
+                hintText: "请输入用户名",
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              validator: FormBuilderValidators.compose(
+                [
                   FormBuilderValidators.required(errorText: "请输入用户名"),
                   FormBuilderValidators.email(errorText: "请输入有效的用户名"),
-                ])),
+                ],
+              ),
+            ),
             const SizedBox(height: 30),
             Obx(() {
               if (c.isCodeLogin.value) {
@@ -149,7 +153,9 @@ class LoginPage extends StatelessWidget {
             Obx(
               () => Center(
                 child: TextButton(
-                  onPressed: () => c.isCodeLogin.value = !c.isCodeLogin.value,
+                  onPressed: () {
+                    c.isCodeLogin.value = !c.isCodeLogin.value;
+                  },
                   child: (c.isCodeLogin.value ? Text("密码登录") : Text("验证码登录")),
                 ),
               ),

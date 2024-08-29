@@ -33,12 +33,24 @@ class GlobalService extends GetxService {
   final appService = Get.find<ApiProvider>();
   final notifyPlugin = Get.find<FlutterLocalNotificationsPlugin>();
 
+  final userInfo = Rxn<UserInfo?>(null);
+
   StreamSubscription<AccessibilityEvent>? subHandler;
 
   @override
   void onInit() async {
     super.onInit();
     isRoot.value = await RootAccess.requestRootAccess;
+    //每5分钟执行一次
+    Timer.periodic(const Duration(minutes: 5), (timer) async {
+      if (userInfo.value != null) {
+        await syncUserInfo();
+      }
+    });
+  }
+
+  Future<void> syncUserInfo() async {
+    userInfo.value = await appService.userInfo();
   }
 
   Future<void> loadApp() async {
@@ -85,8 +97,13 @@ class GlobalService extends GetxService {
   void loadInstalledApps() async {}
 
   void handlerOpenReport() async {
+    if (userInfo.value?.isExpire() ?? false) {
+      Get.snackbar("错误", "请先激活");
+      return;
+    }
+
     if (isOpenAssistant.value) {
-      Get.dialog(Text("请先关闭助手"));
+      Get.snackbar("错误", "请先关闭助手");
       return;
     }
 
@@ -119,16 +136,30 @@ class GlobalService extends GetxService {
 
   void handlerOpenAssistant() async {
     if (isOpenReport.value) {
-      Get.dialog(Text("请先停止上报!"));
+      Get.snackbar("错误", "请先停止上报");
       return;
     }
 
     final apps = await appDao.findAllEnable();
+    if (apps.isEmpty) {
+      Get.snackbar("错误", "请先选择App");
+      return;
+    }
 
     socket = await appService.connect();
+    socket!.onError((err) async {
+      notifyPlugin.show(0, "错误", "网络异常,助手关闭", comNotifiDetails);
+      await handlerCloseAssistant();
+    });
+    socket!.onClose((data) async {
+      logger.d("websocket close: $data");
+      await handlerCloseAssistant();
+    });
+
     socket?.onMessage((data) async {
+      logger.d("收到消息: $data");
       switch (data) {
-        case "jiedan":
+        case "3":
           {
             await closeAllAppNetwork(
                 apps.where((app) => app.uid != onTickAppUid).toList());
@@ -156,11 +187,25 @@ class GlobalService extends GetxService {
       }
       logger.d("app: ${app.name} 触发了节点: ${app.getNode}");
       onTickAppUid = app.uid;
-      socket?.send("jiedan");
+      final uris = await appService.getUserIpList();
+
+      for (final uri in uris) {
+        socket!.send(jsonEncode(
+            {"from": await localRepo.getToken(), "message": "3", "to": uri}));
+      }
     });
 
     logger.d("打开助手");
     isOpenAssistant.value = true;
+  }
+
+  Future<void> handlerCloseAssistant() async {
+    subHandler?.cancel();
+    socket?.close();
+    socket = null;
+    FlutterOverlayWindow.closeOverlay();
+    logger.d("关闭助手");
+    isOpenAssistant.value = false;
   }
 
   Future<void> closeAppNetwork(AppEntity app) async {
@@ -171,13 +216,6 @@ class GlobalService extends GetxService {
   Future<void> enableAppNetwork(AppEntity app) async {
     await appManager.restoreAppInternet(app.uid);
     return appDao.updateIsCut(app.id!, false);
-  }
-
-  Future<void> handlerCloseAssistant() async {
-    subHandler?.cancel();
-    FlutterOverlayWindow.closeOverlay();
-    logger.d("关闭助手");
-    isOpenAssistant.value = false;
   }
 
   Future<void> closeAllAppNetwork(List<AppEntity> apps) async {

@@ -7,7 +7,6 @@ import 'package:dispatch/repo.dart';
 import 'package:dispatch/utils.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:get/get.dart';
 
 import 'dao.dart';
