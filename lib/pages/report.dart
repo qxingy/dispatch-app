@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:dispatch/global.dart';
-import 'package:dispatch/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_accessibility_service/accessibility_event.dart';
 import 'package:get/get.dart';
-import 'package:json_table/json_table.dart';
+
+import '../accessibility_service/accessibility_event.dart';
 
 class ReportCtr extends GetxController {
   final global = Get.find<GlobalService>();
@@ -30,7 +29,7 @@ class ReportPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final report = ctr.global.reportData[index];
               return ListTile(
-                title: Text(report.packageName ?? ""),
+                title: Text(report.appName ?? ""),
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
@@ -53,7 +52,7 @@ class ReportPage extends StatelessWidget {
 class JsonView extends StatelessWidget {
   JsonView({super.key, required this.data});
 
-  final AccessibilityEvent data;
+  final AccessibilityNodeInfo data;
 
   @override
   Widget build(BuildContext context) {

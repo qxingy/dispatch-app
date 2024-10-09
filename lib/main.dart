@@ -1,12 +1,16 @@
+import 'dart:ui';
+
 import 'package:dispatch/app_manager.dart';
 import 'package:dispatch/global.dart';
-import 'package:dispatch/pages/home.dart';
 import 'package:dispatch/pages/login.dart';
 import 'package:dispatch/pages/overlay.dart';
+import 'package:dispatch/pages/verify.dart';
 import 'package:dispatch/repo.dart';
 import 'package:dispatch/utils.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:flutter_overlay_window2/flutter_overlay_window2.dart';
 import 'package:get/get.dart';
 
 import 'dao.dart';
@@ -26,10 +30,15 @@ Future<void> main() async {
   Get.put(ApiProvider());
   Get.put(GlobalService());
 
+  FlutterOverlayWindow.overlayListener.listen((data) {
+    appManager.bringToForeground();
+  });
+
   final isLogin = await localRepo.getToken() != null;
 
   return runApp(
     GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: FlexThemeData.light(scheme: FlexScheme.deepBlue),
       initialRoute: isLogin ? "/home" : "/login",
       getPages: [
@@ -58,3 +67,18 @@ void overlayMain() {
   );
 }
 
+@pragma("vm:entry-point")
+void overlayMain2() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: FlexThemeData.light(scheme: FlexScheme.deepBlue),
+      home: ElevatedButton(
+          onPressed: () async {
+            await FlutterOverlayWindow2.shareData("data");
+          },
+          child: Text("停止上报")),
+    ),
+  );
+}

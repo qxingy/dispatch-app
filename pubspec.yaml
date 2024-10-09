@@ -46,19 +46,23 @@ dependencies:
   crypto: ^3.0.2
   floor: ^1.5.0
   sqflite: ^2.3.3+1
-  flutter_accessibility_service: ^0.2.4
   flex_color_scheme: ^7.3.1
   logger: ^2.4.0
-  json_path: ^0.7.4
-  root_access: ^1.0.4
   json_table: ^2.0.1
   flutter_overlay_window: ^0.4.5
+  flutter_overlay_window2:
+    git:
+      url: https://github.com/qxingy/flutter_overlay_window2.git
+      ref: main
   android_intent_plus: ^5.1.0
   flutter_local_notifications: ^17.2.2
   intl: ^0.19.0
-#      git:
-#        url: https://github.com/rorystephenson/flutter_floatwing.git
-#        ref: fix/resolve-long-cast-exception
+  webview_flutter: ^4.9.0
+  root_access:
+    git:
+      url: https://github.com/qxingy/root_access.git
+      ref: master
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

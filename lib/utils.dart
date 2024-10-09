@@ -3,16 +3,13 @@ import 'package:crypto/crypto.dart';
 import 'package:dispatch/pages/login.dart';
 import 'package:dispatch/repo.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_accessibility_service/accessibility_event.dart';
-import 'package:flutter_accessibility_service/accessibility_event.dart';
-import 'package:flutter_accessibility_service/constants.dart';
-import 'package:flutter_accessibility_service/flutter_accessibility_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:get/get.dart';
-import 'package:json_path/fun_sdk.dart';
 import 'package:logger/logger.dart';
-import 'package:json_path/json_path.dart';
+
+import 'accessibility_service/accessibility_event.dart';
+import 'accessibility_service/flutter_accessibility_service.dart';
 
 var logger = Logger(
   printer: PrettyPrinter(
@@ -75,66 +72,8 @@ Future<void> requestAccessibilityPermission() async {
       FlutterLocalNotificationsPlugin();
 
   await flutterLocalNotificationsPlugin.initialize(InitializationSettings(
-    android: AndroidInitializationSettings('log'),
+    android: AndroidInitializationSettings("ic_launcher"),
   ));
 
   Get.put(flutterLocalNotificationsPlugin);
-}
-
-//递归查找特定子组件是否存在
-bool findChild(String id, AccessibilityEvent event) {
-  if (event.nodeId == id) {
-    return true;
-  }
-
-  if (event.subNodes != null) {
-    for (var child in event.subNodes!) {
-      if (findChild(id, child)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-extension NodeActionPlugin on ScreenBounds {
-  Map<String, dynamic> toJson() {
-    return {
-      "right": right,
-      "top": top,
-      "left": left,
-      "bottom": bottom,
-      "width": width,
-      "height": height,
-    };
-  }
-}
-
-extension AccessibilityEventPlugin on AccessibilityEvent {
-  Map<String, dynamic> toJson() {
-    return {
-      "mapId": mapId,
-      "nodeId": nodeId,
-      "actionType": actionType?.toString(),
-      "eventTime": eventTime?.toString(),
-      "packageName": packageName,
-      "eventType": eventType?.toString(),
-      "text": text,
-      "contentChangeTypes": contentChangeTypes?.toString(),
-      "movementGranularity": movementGranularity,
-      "windowType": windowType?.toString(),
-      "isActive": isActive,
-      "isFocused": isFocused,
-      "isClickable": isClickable,
-      "isScrollable": isScrollable,
-      "isFocusable": isFocusable,
-      "isCheckable": isCheckable,
-      "isLongClickable": isLongClickable,
-      "isEditable": isEditable,
-      "isPip": isPip,
-      "screenBounds": screenBounds?.toJson(),
-      "actions": actions?.map((action) => action.toString()).toList(),
-      "subNodes": subNodes?.map((node) => node.toJson()).toList(),
-    };
-  }
 }

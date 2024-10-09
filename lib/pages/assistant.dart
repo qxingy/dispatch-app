@@ -13,7 +13,6 @@ class AssistantCtr extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    await localRepo.setUnInit();
 
     if (!await localRepo.isInit()) {
       await global.loadApp();

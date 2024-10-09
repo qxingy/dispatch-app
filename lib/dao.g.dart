@@ -253,6 +253,11 @@ class _$AppDao extends AppDao {
   }
 
   @override
+  Future<void> deleteAllApp() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM AppEntity');
+  }
+
+  @override
   Future<void> insertPerson(List<AppEntity> app) async {
     await _appEntityInsertionAdapter.insertList(
         app, OnConflictStrategy.replace);

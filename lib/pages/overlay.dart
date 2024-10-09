@@ -18,27 +18,19 @@ class OverlayPage extends StatelessWidget {
     return Builder(
       builder: (BuildContext context) {
         return Container(
-            padding: EdgeInsets.all(1),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                AndroidIntent(
-                        action: "action_view", data: "dispatch://example.com")
-                    .launch();
-              },
-              child: Image.asset("images/logo.png"),
-            ));
-        return ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).secondaryHeaderColor),
-          onPressed: () {
-            AndroidIntent(action: "action_view", data: "dispatch://example.com")
-                .launch();
-          },
-          child: Text(c.title.value),
+          padding: EdgeInsets.all(1),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: GestureDetector(
+            onTap: () {
+              AndroidIntent(
+                      action: "action_view", data: "dispatch://example.com")
+                  .launch();
+            },
+            child: Image.asset("images/logo.png"),
+          ),
         );
       },
     );

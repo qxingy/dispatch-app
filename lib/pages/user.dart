@@ -1,16 +1,19 @@
+import 'package:dispatch/app_manager.dart';
 import 'package:dispatch/global.dart';
 import 'package:dispatch/repo.dart';
-import 'package:dispatch/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import "package:dispatch/constans.dart";
 
 class UserPageCtr extends GetxController {
   final _localRepo = Get.find<LocalRepo>();
   final _global = Get.find<GlobalService>();
   final _apiService = Get.find<ApiProvider>();
   final _formKey = GlobalKey<FormState>();
+  final _app = Get.find<AppManager>();
 
   final cdKey = "".obs;
   final account = "".obs;
@@ -29,10 +32,12 @@ class UserPageCtr extends GetxController {
       return;
     }
     await _apiService.cdkActivation(account.value, cdKey.value);
-    Get.snackbar("提示", "激活成功");
+    _app.toast("激活成功");
     cdKey.value = "";
   }
 }
+
+void changePassword() async {}
 
 class UserPage extends StatelessWidget {
   UserPage({super.key});
@@ -46,7 +51,7 @@ class UserPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
-            Icons.account_circle_outlined,
+            Icons.account_box,
             size: 200,
             color: Colors.grey,
           ),
@@ -55,7 +60,11 @@ class UserPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "用户名: ${c._global.userInfo.value?.username ?? ""}",
+                "用户账号: ${c._global.userInfo.value?.username ?? ""}",
+                style: TextStyle(fontSize: 15),
+              ),
+              Text(
+                "角色: ${c._global.userInfo.value?.roleId == 1 ? "超级管理员" : "普通用户" ?? ""}",
                 style: TextStyle(fontSize: 15),
               ),
               Text(
@@ -66,9 +75,31 @@ class UserPage extends StatelessWidget {
                 "在线数量: ${c._global.userInfo.value?.onlineNum ?? ""}",
                 style: TextStyle(fontSize: 15),
               ),
+              Text(
+                "设备ID: ${c._global.deviceId ?? ""}",
+                style: TextStyle(fontSize: 15),
+              ),
+              Text(
+                "是否root: ${c._global.isRoot.value ? "是" : "否"}",
+                style: TextStyle(fontSize: 15),
+              ),
               TimeDifferenceDisplay(
-                  expiryTimestamp:
-                      c._global.userInfo.value?.expirationTime ?? 0)
+                expiryTimestamp: c._global.userInfo.value?.expirationTime ?? 0,
+              ),
+              SizedBox(height: 10),
+              InkWell(
+                onTap: () async {
+                  launchUrlString(downloadUrl);
+                },
+                child: Text(
+                  downloadUrl,
+                  style: TextStyle(fontSize: 15, color: Colors.blue),
+                ),
+              ),
+              Text(
+                "密码: ${downloadPasswd}",
+                style: TextStyle(fontSize: 15),
+              ),
             ],
           ),
           SizedBox(height: 50),
@@ -94,6 +125,7 @@ class UserPage extends StatelessWidget {
               child: Text("确认激活"),
             ),
           ),
+          SizedBox(height: 5),
         ],
       );
     });
@@ -111,8 +143,6 @@ class TimeDifferenceDisplay extends StatelessWidget {
         DateTime.fromMillisecondsSinceEpoch(expiryTimestamp * 1000);
     final difference = expiryTime.difference(currentTime);
 
-    print(currentTime);
-    print(expiryTimestamp);
     if (difference.isNegative) {
       return '已过期';
     }

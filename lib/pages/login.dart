@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:dispatch/app_manager.dart';
 import 'package:dispatch/global.dart';
 import 'package:dispatch/repo.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ class LoginPageCtr extends GetxController {
   final apiProvider = Get.find<ApiProvider>();
   final localRepo = Get.find<LocalRepo>();
   final globalService = Get.find<GlobalService>();
+  final app = Get.find<AppManager>();
 
   final _formKey = GlobalKey<FormState>();
   final username = "".obs;
@@ -32,7 +33,7 @@ class LoginPageCtr extends GetxController {
     form.save();
 
     await apiProvider.sendEmail(username.value);
-    Get.snackbar("消息", "验证码获取成功!");
+    app.toast("验证码获取成功!");
   }
 
   void login(BuildContext context) async {
@@ -52,10 +53,10 @@ class LoginPageCtr extends GetxController {
 
     await localRepo.setAccount(username.value);
     await localRepo.setToken(token);
-    await globalService.syncUserInfo();
 
-    Get.snackbar("消息", "登录成功");
-    Navigator.pushNamedAndRemoveUntil(context, "/home", (r) => false);
+    app.toast("登录成功");
+
+    Get.offAllNamed("/home");
   }
 }
 
@@ -89,15 +90,15 @@ class LoginPage extends StatelessWidget {
                 c.username.value = v!;
               },
               decoration: InputDecoration(
-                labelText: "用户名",
-                hintText: "请输入用户名",
+                labelText: "用户账号",
+                hintText: "请输入用户账号",
                 filled: true,
                 fillColor: Colors.white,
               ),
               validator: FormBuilderValidators.compose(
                 [
-                  FormBuilderValidators.required(errorText: "请输入用户名"),
-                  FormBuilderValidators.email(errorText: "请输入有效的用户名"),
+                  FormBuilderValidators.required(errorText: "请输入用户账号"),
+                  FormBuilderValidators.email(errorText: "请输入有效的用户账号"),
                 ],
               ),
             ),

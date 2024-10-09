@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:floor/floor.dart';
-import 'package:json_path/json_path.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 part 'dao.g.dart';
@@ -69,6 +68,9 @@ abstract class AppDao {
 
   @Query("SELECT * FROM AppEntity WHERE enable = true")
   Future<List<AppEntity>> findAllEnable();
+
+  @Query("DELETE FROM AppEntity")
+  Future<void> deleteAllApp();
 
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertPerson(List<AppEntity> app);

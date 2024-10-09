@@ -24,7 +24,15 @@ class AppManager {
     return await _channel.invokeMethod("match", {"json": json, "data": data});
   }
 
-  Future<bool> bringToForeground() async {
+  Future<void> bringToForeground() async {
     return await _channel.invokeMethod("getInstalledApps");
+  }
+
+  Future<void> toast(String msg) async {
+    return await _channel.invokeMethod("toast", {"message": msg});
+  }
+
+  Future<String?> getDeviceId() async {
+    return await _channel.invokeMethod("getDeviceId");
   }
 }

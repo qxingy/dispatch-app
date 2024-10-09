@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dispatch/app_manager.dart';
+import 'package:dispatch/constans.dart';
 import 'package:dispatch/utils.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,7 +10,6 @@ class AppRemoteInfo {
   final String appName;
   final String packageName;
   final String promotionLink;
-  final int sortId;
   final String node;
   final String node1;
   final String node2;
@@ -18,7 +19,6 @@ class AppRemoteInfo {
     required this.appName,
     required this.packageName,
     required this.promotionLink,
-    required this.sortId,
     required this.node,
     required this.node1,
     required this.node2,
@@ -30,7 +30,6 @@ class AppRemoteInfo {
       appName: json['app_name'],
       packageName: json['package_name'],
       promotionLink: json['promotion_link'],
-      sortId: json['sort_id'],
       node: json['node'],
       node1: json['node1'],
       node2: json['node2'],
@@ -44,12 +43,14 @@ class UserInfo {
   final int expirationTime;
   final int onlineNum;
   final String phone;
+  final int roleId;
 
   UserInfo({
     required this.username,
     required this.expirationTime,
     required this.onlineNum,
     required this.phone,
+    required this.roleId,
   });
 
   bool isExpire() {
@@ -58,18 +59,20 @@ class UserInfo {
 }
 
 class ApiProvider extends GetConnect {
+  final app = Get.find<AppManager>();
   final repo = Get.find<LocalRepo>();
   final List<String> authWhiteList = [
     "/user/login",
     "/user/sendEmail",
-    "/user/emailLogin"
+    "/user/emailLogin",
         "/business/ws"
   ];
 
   @override
   void onInit() {
-    // httpClient.baseUrl = 'http://49.233.252.12/api';
-    httpClient.baseUrl = 'http://192.168.0.65:5586/api';
+    super.onInit();
+    httpClient.baseUrl = networkBaseUrl;
+    // httpClient.baseUrl = 'http://192.168.0.65:5586/api';
 
     httpClient.addRequestModifier<dynamic>((req) async {
       if (!authWhiteList.any((url) => req.url.toString().contains(url))) {
@@ -86,7 +89,7 @@ class ApiProvider extends GetConnect {
 
     httpClient.addResponseModifier<dynamic>((req, resp) async {
       if (resp.body["code"] != 200) {
-        Get.snackbar("错误", resp.body["message"]);
+        app.toast(resp.body["message"]);
         throw Exception(resp.body["message"]);
       }
       return resp;
@@ -106,6 +109,7 @@ class ApiProvider extends GetConnect {
   Future<String> codeLogin(String username, String code) async {
     final result =
         await post("/user/emailLogin", {"username": username, "code": code});
+    print(result.body);
     return result.body["token"];
   }
 
@@ -151,10 +155,11 @@ class ApiProvider extends GetConnect {
   Future<UserInfo> userInfo() async {
     final result = await get("/user/getUsers");
     return UserInfo(
-      username: result.body["data"][0]["username"],
-      expirationTime: result.body["data"][0]["expiration_time"],
-      onlineNum: result.body["data"][0]["onlinenum"],
-      phone: result.body["data"][0]["phone"],
+      username: result.body["data"]["username"],
+      expirationTime: result.body["data"]["expiration_time"],
+      onlineNum: result.body["data"]["onlinenum"],
+      phone: result.body["data"]["phone"],
+      roleId: result.body["data"]["role_id"],
     );
   }
 }
