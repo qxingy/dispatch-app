@@ -57,12 +57,13 @@ dependencies:
   android_intent_plus: ^5.1.0
   flutter_local_notifications: ^17.2.2
   intl: ^0.19.0
-  webview_flutter: ^4.9.0
   root_access:
     git:
       url: https://github.com/qxingy/root_access.git
       ref: master
   url_launcher: ^6.3.0
+  flutter_inappwebview: ^6.1.5
+  flutter_easyloading: ^3.0.5
 
 dev_dependencies:
   flutter_test:

@@ -1,12 +1,16 @@
 import 'package:dispatch/app_manager.dart';
 import 'package:dispatch/global.dart';
 import 'package:dispatch/repo.dart';
+import 'package:dispatch/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
+import 'package:root_access/root_access.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import "package:dispatch/constans.dart";
+
+import '../accessibility_service/flutter_accessibility_service.dart';
 
 class UserPageCtr extends GetxController {
   final _localRepo = Get.find<LocalRepo>();
@@ -34,6 +38,10 @@ class UserPageCtr extends GetxController {
     await _apiService.cdkActivation(account.value, cdKey.value);
     _app.toast("激活成功");
     cdKey.value = "";
+  }
+
+  void refresh() async {
+    _global.syncUserInfo();
   }
 }
 
@@ -79,10 +87,34 @@ class UserPage extends StatelessWidget {
                 "设备ID: ${c._global.deviceId ?? ""}",
                 style: TextStyle(fontSize: 15),
               ),
-              Text(
-                "是否root: ${c._global.isRoot.value ? "是" : "否"}",
-                style: TextStyle(fontSize: 15),
-              ),
+              InkWell(
+                  onTap: () async {
+                    if (!await FlutterAccessibilityService
+                        .isAccessibilityPermissionEnabled()) {
+                      await FlutterAccessibilityService
+                          .requestAccessibilityPermission();
+                    }
+
+                    c._global.isRoot.value = await RootAccess.requestRootAccess;
+                  },
+                  child: Text(
+                    "开启root: ${c._global.isRoot.value ? "是" : "否"}",
+                    style: c._global.isRoot.value
+                        ? TextStyle(fontSize: 15)
+                        : TextStyle(fontSize: 15, color: Colors.red),
+                  )),
+              InkWell(
+                  onTap: () async {
+                    c._global.isWuzhangai.value =
+                        await FlutterAccessibilityService
+                            .requestAccessibilityPermission();
+                  },
+                  child: Text(
+                    "开启无障碍: ${c._global.isWuzhangai.value ? "是" : "否"}",
+                    style: c._global.isWuzhangai.value
+                        ? TextStyle(fontSize: 15)
+                        : TextStyle(fontSize: 15, color: Colors.red),
+                  )),
               TimeDifferenceDisplay(
                 expiryTimestamp: c._global.userInfo.value?.expirationTime ?? 0,
               ),
@@ -93,7 +125,7 @@ class UserPage extends StatelessWidget {
                 },
                 child: Text(
                   downloadUrl,
-                  style: TextStyle(fontSize: 15, color: Colors.blue),
+                  style: TextStyle(fontSize: 15, color: Colors.red),
                 ),
               ),
               Text(

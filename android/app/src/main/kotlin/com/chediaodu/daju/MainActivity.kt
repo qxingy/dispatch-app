@@ -1,11 +1,11 @@
-package com.example.dispatch
+package com.chediaodu.daju
 
 import android.util.Log
-import com.example.dispatch.flutter_accessibility_service.AccessibilityServicePlugin
+import com.chediaodu.daju.flutter_accessibility_service.AccessibilityServicePlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
-const val TAG = "com.example.dispatch"
+const val TAG = "com.chediaodu.daju"
 
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

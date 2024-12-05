@@ -176,12 +176,6 @@ class LocalRepo {
   Future<void> removeToken() async =>
       (await SharedPreferences.getInstance()).remove(tokenKey);
 
-  Future<bool> isInit() async =>
-      (await SharedPreferences.getInstance()).getBool("init") ?? false;
-
-  Future<void> setInit() async =>
-      (await SharedPreferences.getInstance()).setBool("init", true);
-
   Future<void> setUnInit() async =>
       (await SharedPreferences.getInstance()).setBool("init", false);
 

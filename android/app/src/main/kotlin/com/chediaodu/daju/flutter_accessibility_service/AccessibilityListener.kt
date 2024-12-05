@@ -1,4 +1,4 @@
-package com.example.dispatch.flutter_accessibility_service
+package com.chediaodu.daju.flutter_accessibility_service
 
 import android.accessibilityservice.AccessibilityService
 import android.app.Service
@@ -11,9 +11,9 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 import android.widget.Toast
-import com.example.dispatch.TAG
-import com.example.dispatch.flutter_accessibility_service.Constants.ACCESSIBILITY_INTENT
-import com.example.dispatch.flutter_accessibility_service.Constants.SEND_BROADCAST
+import com.chediaodu.daju.TAG
+import com.chediaodu.daju.flutter_accessibility_service.Constants.ACCESSIBILITY_INTENT
+import com.chediaodu.daju.flutter_accessibility_service.Constants.SEND_BROADCAST
 import com.google.gson.Gson
 
 class AccessibilityListener : AccessibilityService() {
@@ -41,7 +41,6 @@ class AccessibilityListener : AccessibilityService() {
     fun clickRoot(id: String?, text: String?): Boolean {
         var nodeInfo: AccessibilityNodeInfo? = null
 
-        println("点击开始2");
         windows.sortBy { it.layer }
 
         for (window in windows) {
@@ -50,7 +49,6 @@ class AccessibilityListener : AccessibilityService() {
                 nodeInfo = window.root
             }
         }
-        println("点击结束2");
         Log.d(TAG, "click id: $id, text: $text")
         Log.d(TAG, nodeInfo.toString())
 
@@ -71,7 +69,6 @@ class AccessibilityListener : AccessibilityService() {
         }
 
 
-        println(targets);
         var target = targets[0]
 
         for (i in 0..3) {
@@ -89,7 +86,6 @@ class AccessibilityListener : AccessibilityService() {
             }
         }
 
-        println("=====================")
         if (!target.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
             Toast.makeText(applicationContext, "操作失败", Toast.LENGTH_SHORT).show()
             return false

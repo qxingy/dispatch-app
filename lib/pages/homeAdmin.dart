@@ -7,6 +7,7 @@ import 'package:dispatch/pages/assistant.dart';
 import 'package:dispatch/pages/user.dart';
 import 'package:dispatch/repo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_overlay_window2/flutter_overlay_window2.dart';
 import 'package:get/get.dart';
@@ -67,14 +68,24 @@ class HomeAdminPageCtr extends GetxController {
     switch (_currentIndex.value) {
       case 0:
         if (globalCtr.isOpenAssistant.value) {
-          return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).secondaryHeaderColor),
-            onPressed: () {
-              globalCtr.handlerCloseAssistant();
-            },
-            child: Text("关闭助手"),
-          );
+          return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).secondaryHeaderColor),
+                  onPressed: () {
+                    globalCtr.handlerCloseAssistant();
+                  },
+                  child: Text("关闭助手"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    EasyLoading.showToast("测试接单");
+                  },
+                  child: Text("测试"),
+                )
+              ]);
         } else {
           return ElevatedButton(
             onPressed: () {
@@ -104,12 +115,21 @@ class HomeAdminPageCtr extends GetxController {
           );
         }
       case 3:
-        return ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.red),
-          ),
-          onPressed: () => logout(context),
-          child: Text("退出登录"),
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.red),
+              ),
+              onPressed: () => logout(context),
+              child: Text("退出登录"),
+            ),
+            ElevatedButton(
+              onPressed: () => globalCtr.syncUserInfo(),
+              child: Text("同步信息"),
+            ),
+          ],
         );
     }
     return null;

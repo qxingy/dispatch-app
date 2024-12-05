@@ -15,7 +15,7 @@ class LoginPageCtr extends GetxController {
   final username = "".obs;
   final password = "".obs;
   final code = "".obs;
-  final isCodeLogin = false.obs;
+  final isCodeLogin = true.obs;
   final isObscure = true.obs;
 
   @override

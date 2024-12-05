@@ -1,4 +1,4 @@
-package com.example.dispatch.flutter_accessibility_service
+package com.chediaodu.daju.flutter_accessibility_service
 
 import android.content.Context
 import android.provider.Settings

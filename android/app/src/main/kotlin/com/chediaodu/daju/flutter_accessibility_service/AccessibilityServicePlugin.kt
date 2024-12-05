@@ -1,4 +1,4 @@
-package com.example.dispatch.flutter_accessibility_service
+package com.chediaodu.daju.flutter_accessibility_service
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -97,11 +97,8 @@ class AccessibilityServicePlugin : FlutterPlugin, ActivityAware, MethodCallHandl
             }
 
             "performAction" -> {
-                Log.d(TAG, "111111111");
                 val id = call.argument<String?>("id");
-                Log.d(TAG, "222222222");
                 val text = call.argument<String?>("text");
-                Log.d(TAG, "333333333");
                 result.success(AccessibilityListener.instance?.clickRoot(id, text));
             }
 

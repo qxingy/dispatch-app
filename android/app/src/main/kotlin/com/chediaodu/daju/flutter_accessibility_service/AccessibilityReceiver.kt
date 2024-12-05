@@ -1,10 +1,10 @@
-package com.example.dispatch.flutter_accessibility_service
+package com.chediaodu.daju.flutter_accessibility_service
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.dispatch.TAG
+import com.chediaodu.daju.TAG
 import io.flutter.plugin.common.EventChannel.EventSink
 
 class AccessibilityReceiver(private val eventSink: EventSink) : BroadcastReceiver() {

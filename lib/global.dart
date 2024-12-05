@@ -6,6 +6,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:dispatch/constans.dart';
 import 'package:dispatch/repo.dart';
 import 'package:dispatch/utils.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_overlay_window2/flutter_overlay_window2.dart';
@@ -28,6 +29,7 @@ class GlobalService extends GetxService {
   GetSocket? socket;
 
   final isRoot = false.obs;
+  final isWuzhangai = false.obs;
 
   final appDao = Get.find<AppDao>();
   final localRepo = Get.find<LocalRepo>();
@@ -44,10 +46,6 @@ class GlobalService extends GetxService {
   @override
   void onInit() async {
     super.onInit();
-
-    isRoot.value = await RootAccess.requestRootAccess;
-    logger.d("Root permission: $isRoot");
-
     deviceId.value = await appManager.getDeviceId();
 
     syncUserInfo();
@@ -58,7 +56,13 @@ class GlobalService extends GetxService {
   }
 
   Future<void> syncUserInfo() async {
+    isRoot.value = await RootAccess.requestRootAccess;
+    logger.d("Root permission: $isRoot");
     userInfo.value = await appService.userInfo();
+    isWuzhangai.value =
+        await FlutterAccessibilityService.isAccessibilityPermissionEnabled();
+
+    appManager.toast("用户信息同步成功!");
   }
 
   Future<void> loadApp() async {
@@ -120,10 +124,10 @@ class GlobalService extends GetxService {
     );
 
     reportData.clear();
-    if (isOpenAssistant.value) {
-      appManager.toast("请先关闭助手");
-      return;
-    }
+    // if (isOpenAssistant.value) {
+    //   appManager.toast("请先关闭助手");
+    //   return;
+    // }
 
     appManager.toast("每10s上报一次");
 
@@ -133,6 +137,7 @@ class GlobalService extends GetxService {
         appManager.toast("未检测到任何应用");
         return;
       }
+      logger.d("页面组件信息: ${nodeInfo.toJson()}");
 
       appManager.toast("上报当前页面:${nodeInfo.appName}");
       logger.d("开始上报页面组件信息");
@@ -218,8 +223,8 @@ class GlobalService extends GetxService {
         case "3":
           {
             notifyPlugin.show(0, "提示", "接单成功", comNotifiDetails);
-              await handlerCloseAssistant();
-              await closeAllApp(apps, null);
+            await handlerCloseAssistant();
+            await closeAllApp(apps, null);
           }
       }
     });
@@ -236,32 +241,45 @@ class GlobalService extends GetxService {
         return;
       }
 
-      try {
-        final match = await appManager.match(jsonData, app.getNode);
-        if (!match) {
-          logger.d("事件匹配失败");
-          return;
-        }
-        logger.d("app: ${app.name} 触发了节点: ${app.getNode}");
-        final uris = await appService.getUserIpList();
-
-        final token = await localRepo.getToken();
-        for (final uri in uris) {
-          if (uri == token) {
+      var nodes = app.getNode.split("|");
+      for (var node in nodes) {
+        try {
+          final match = await appManager.match(jsonData, node);
+          if (!match) {
+            logger.d("事件匹配失败");
             continue;
           }
-          socket!.send(jsonEncode({"from": token, "message": "3", "to": uri}));
-        }
-        notifyPlugin.show(0, "提示", "接单成功", comNotifiDetails);
+          logger.d("app: ${app.name} 触发了节点: $node");
+          final uris = await appService.getUserIpList();
+
+          final token = await localRepo.getToken();
+          for (final uri in uris) {
+            if (uri == token) {
+              continue;
+            }
+            socket!
+                .send(jsonEncode({"from": token, "message": "3", "to": uri}));
+          }
+          notifyPlugin.show(0, "提示", "接单成功", comNotifiDetails);
           await handlerCloseAssistant();
           await closeAllApp(apps.where((a) => a.uid != app.uid).toList(), app);
-      } catch (e) {
-        logger.e("事件匹配异常, $e");
-      } finally {}
+          return;
+        } catch (e) {
+          logger.e("事件匹配异常, $e");
+        } finally {}
+      }
     });
 
     logger.d("打开助手");
     isOpenAssistant.value = true;
+    minimize();
+  }
+
+  void minimize() {
+    final AndroidIntent intent = AndroidIntent(
+        action: "android.intent.action.MAIN",
+        category: "android.intent.category.HOME");
+    intent.launch();
   }
 
   Future<void> handlerCloseAssistant() async {

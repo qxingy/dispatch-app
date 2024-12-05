@@ -1,4 +1,4 @@
-package com.example.dispatch.flutter_accessibility_service
+package com.chediaodu.daju.flutter_accessibility_service
 
 object Constants {
     var ACCESSIBILITY_INTENT: String = "accessibility_event"

@@ -9,6 +9,7 @@ import 'package:dispatch/repo.dart';
 import 'package:dispatch/utils.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_overlay_window2/flutter_overlay_window2.dart';
 import 'package:get/get.dart';
@@ -40,6 +41,7 @@ Future<void> main() async {
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: FlexThemeData.light(scheme: FlexScheme.deepBlue),
+      builder: EasyLoading.init(),
       initialRoute: isLogin ? "/home" : "/login",
       getPages: [
         GetPage(

@@ -1,19 +1,17 @@
 import 'package:dispatch/constans.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewState extends GetxController {
-  late WebViewController _controller;
+  late InAppWebViewController _controller;
 
   @override
   void onInit() {
     super.onInit();
-
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Color(0x0000000))
-      ..loadRequest(Uri.parse(activityUrl));
   }
 }
 
@@ -24,7 +22,21 @@ class WebViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Text("hello world");
-    return WebViewWidget(controller: ctr._controller);
+    return Container(
+        child: InAppWebView(
+      pullToRefreshController: PullToRefreshController(
+        settings: PullToRefreshSettings()
+      ),
+      gestureRecognizers: Set()
+        ..add(Factory<VerticalDragGestureRecognizer>(
+            () => VerticalDragGestureRecognizer())),
+      initialUrlRequest: URLRequest(url: WebUri(activityUrl)),
+      initialSettings: InAppWebViewSettings(
+        useHybridComposition: true,
+        verticalScrollBarEnabled: false,
+        disallowOverScroll: false,
+        alwaysBounceVertical: true,
+      ),
+    ));
   }
 }

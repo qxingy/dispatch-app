@@ -26,7 +26,7 @@ class OverlayPage extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               AndroidIntent(
-                      action: "action_view", data: "dispatch://example.com")
+                      action: "action_view", data: "dispatch://chediaodu.com")
                   .launch();
             },
             child: Image.asset("images/logo.png"),

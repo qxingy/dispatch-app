@@ -1,4 +1,4 @@
-final packageName = "com.example.dispatch";
+final packageName = "com.chediaodu.daju";
 final appName = "大伡车调度";
 final downloadUrl = "https://chediaodu.lanzn.com/b00uyg5rfe";
 final downloadPasswd = "1234";

@@ -1,4 +1,4 @@
-package com.example.dispatch
+package com.chediaodu.daju
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -54,6 +54,7 @@ class AppManager : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     @SuppressLint("HardwareIds")
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+
         when (call.method) {
             "getInstalledApps" -> {
                 val apps = context.packageManager.getInstalledApplications(0);

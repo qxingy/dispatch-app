@@ -13,11 +13,7 @@ class AssistantCtr extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-
-    if (!await localRepo.isInit()) {
-      await global.loadApp();
-      await localRepo.setInit();
-    }
+    await global.loadApp();
   }
 
   void onCopy(String value) async {
