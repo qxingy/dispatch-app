@@ -74,12 +74,6 @@ class HomeNormalPageCtr extends GetxController {
                   },
                   child: Text("关闭助手"),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    EasyLoading.showToast("测试接单");
-                  },
-                  child: Text("测试"),
-                )
               ]);
         } else {
           return ElevatedButton(

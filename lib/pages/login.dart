@@ -90,7 +90,7 @@ class LoginPage extends StatelessWidget {
                 c.username.value = v!;
               },
               decoration: InputDecoration(
-                labelText: "用户账号",
+                labelText: "用户账号(邮箱)",
                 hintText: "请输入用户账号",
                 filled: true,
                 fillColor: Colors.white,

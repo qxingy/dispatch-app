@@ -26,10 +26,15 @@ if (flutterVersionName == null) {
 android {
     namespace = "com.chediaodu.daju"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "25.1.8937393"
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
 
     compileOptions {
         incremental = false
+        coreLibraryDesugaringEnabled  = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -43,7 +48,8 @@ android {
         targetSdk = 34
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
-        multiDexEnabled true
+
+        multiDexEnabled = true
     }
 
     buildTypes {

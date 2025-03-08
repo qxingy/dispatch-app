@@ -115,6 +115,11 @@ class GlobalService extends GetxService {
   void loadInstalledApps() async {}
 
   void handlerOpenReport() async {
+    if (!isWuzhangai.value) {
+      appManager.toast("无障碍权限未开启!");
+      return;
+    }
+
     FlutterOverlayWindow2.showOverlay(
       enableDrag: true,
       height: 150,
@@ -176,11 +181,17 @@ class GlobalService extends GetxService {
 
   void handlerOpenAssistant() async {
     if (userInfo.value?.isExpire() ?? true) {
-      appManager.toast("请先激活");
+      appManager.toast("请先激活!");
       return;
     }
+
+    if (!isWuzhangai.value) {
+      appManager.toast("无障碍权限未开启!");
+      return;
+    }
+
     if (isOpenReport.value) {
-      appManager.toast("请先停止上报");
+      appManager.toast("请先停止上报!");
       return;
     }
 
